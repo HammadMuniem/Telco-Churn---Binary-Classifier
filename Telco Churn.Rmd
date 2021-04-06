@@ -1,0 +1,173 @@
+---
+title: "Telco Churn"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Updating Libraries
+```{r echo=T, results='hide',message=FALSE,warning=FALSE}
+library(rio)
+library(formattable)
+library(dplyr)
+library(tidyverse)
+library(readxl)
+library(corrplot)
+library(stargazer)
+library(car)
+library(PerformanceAnalytics)
+library(tidyr)
+library(tm)
+library(MASS)
+library(AER)
+library(ggplot2)
+library(lubridate)
+library(lattice)
+library(lme4)
+library(MuMIn)
+library("ggridges")
+library("hrbrthemes")
+library(ggthemes)
+library("maps")
+library("mapproj")
+library(cowplot)
+options(scipen = 999)
+```
+
+## Importing Data
+```{r}
+df<-read_xlsx("TelcoChurn.xlsx",sheet = "Data")
+```
+
+```{r}
+str(df)
+```
+## Checking Nulls
+```{r}
+colSums(is.na(df))
+```
+## Dropping Nulls
+```{r}
+df<-na.omit(df)
+```
+
+## Converting to factor and releveling
+```{r}
+df$gender<-as.factor(df$gender)
+df$SeniorCitizen<-as.factor(df$SeniorCitizen)
+df$Partner<-as.factor(df$Partner)
+df$Dependents<-as.factor(df$Dependents)
+df$Contract<-as.factor(df$Contract)
+df$PaperlessBilling<-as.factor(df$PaperlessBilling)
+df$Churn<-as.factor(df$Churn)
+```
+
+
+## Making separate datasets for telephone only, Internet only and customers that use both services 
+```{r}
+Both<-subset(df, PhoneService=='Yes' & InternetService!='No')
+Telephone<-subset(df, PhoneService=='Yes' & InternetService=='No')
+Internet<-subset(df, PhoneService=='No' & InternetService!='No')
+```
+
+## Preparing data for customers that use both, Telephone and Internet Services
+```{r}
+unique(Both$PhoneService)
+Both$MultipleLines<-as.factor(Both$MultipleLines)
+Both$OnlineSecurity<-as.factor(Both$OnlineSecurity)
+Both$OnlineBackup<-as.factor(Both$OnlineBackup)
+Both$DeviceProtection<-as.factor(Both$DeviceProtection)
+Both$TechSupport<-as.factor(Both$TechSupport)
+Both$StreamingTV<-as.factor(Both$StreamingTV)
+Both$StreamingMovies<-as.factor(Both$StreamingMovies)
+Both$PaymentMethod<-as.factor(Both$PaymentMethod)
+Both$InternetService<-as.factor(Both$InternetService)
+Both$PhoneService<-NULL
+summary(Both)
+```
+
+
+## Preparing data for Telephone Only Customers
+```{r}
+Telephone$MultipleLines<-as.factor(Telephone$MultipleLines)
+Telephone$PaymentMethod<-as.factor(Telephone$PaymentMethod)
+
+Telephone$PhoneService<-NULL
+Telephone$OnlineSecurity<-NULL
+Telephone$OnlineBackup<-NULL
+Telephone$DeviceProtection<-NULL
+Telephone$TechSupport<-NULL
+Telephone$StreamingTV<-NULL
+Telephone$StreamingMovies<-NULL
+Telephone$InternetService<-NULL
+summary(Telephone)
+```
+
+## Preparing data for Internet Only Customers
+```{r}
+Internet$PaymentMethod<-as.factor(Internet$PaymentMethod)
+Internet$OnlineSecurity<-as.factor(Internet$OnlineSecurity)
+Internet$OnlineBackup<-as.factor(Internet$OnlineBackup)
+Internet$DeviceProtection<-as.factor(Internet$DeviceProtection)
+Internet$TechSupport<-as.factor(Internet$TechSupport)
+Internet$StreamingTV<-as.factor(Internet$StreamingTV)
+Internet$StreamingMovies<-as.factor(Internet$StreamingMovies)
+
+
+
+Internet$MultipleLines<-NULL
+Internet$PhoneService<-NULL
+Internet$InternetService<-NULL
+summary(Internet)
+```
+
+
+```{r}
+colSums(is.na(Internet))
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
