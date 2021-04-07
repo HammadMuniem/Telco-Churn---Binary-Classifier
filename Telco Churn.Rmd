@@ -708,7 +708,7 @@ stargazer(reg1,reg2,reg3,type="text",align = TRUE,single.row=TRUE,digits=2,out =
 ```
 
 ```{r}
-exp(0.19)
+
 ```
 
 ```{r}
