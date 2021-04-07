@@ -339,7 +339,6 @@ print(paste("AUC = ", auc))
 print(paste("Precision = ", precision))
 print(paste("Recall = ", recall))
 print(paste("F-1 Score = ", f1_score))
-
 ```
 
 ```{r}
@@ -461,7 +460,7 @@ summary(train)
 
 ## Creating the model - Telephone only
 ```{r}
-reg2  <- glm(Churn ~ Partner+ Dependents + MultipleLines + Contract + PaperlessBilling+PaymentMethod+tenure,family=binomial (link="logit"),data=train)
+reg2  <- glm(Churn ~SeniorCitizen+ Partner+ Dependents + MultipleLines + Contract + PaperlessBilling+PaymentMethod+tenure,family=binomial (link="logit"),data=train)
 summary(reg2)
 ```
 
@@ -705,7 +704,7 @@ print(paste("F-1 Score = ", f1_score))
 ```
 
 ```{r}
-
+stargazer(reg1,reg2,reg3,type="text",align = TRUE,single.row=TRUE,digits=2,out = "regout.txt")
 ```
 
 ```{r}
