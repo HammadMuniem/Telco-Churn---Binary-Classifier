@@ -33,6 +33,8 @@ library(ggthemes)
 library("maps")
 library("mapproj")
 library(cowplot)
+library(ROCR)
+
 options(scipen = 999)
 ```
 
@@ -61,6 +63,7 @@ df$Partner<-as.factor(df$Partner)
 df$Dependents<-as.factor(df$Dependents)
 df$Contract<-as.factor(df$Contract)
 df$PaperlessBilling<-as.factor(df$PaperlessBilling)
+df$Churn <- ifelse(df$Churn=="Yes", 1, 0)
 df$Churn<-as.factor(df$Churn)
 ```
 
@@ -129,8 +132,598 @@ colSums(is.na(Internet))
 ```
 
 ```{r}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 12,fig.height = 20)
+```
+
+## Visualizing predictors with churn possibility - BOTH
+```{r}
+df2<-table(Both$Churn,Both$gender)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Gender")+ylab("Percentage")
+a<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$Partner)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Partner")+ylab("Percentage")
+b<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$Dependents)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Dependents")+ylab("Percentage")
+c<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$MultipleLines)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Multiple Lines")+ylab("Percentage")
+d<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$InternetService)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Internet Service")+ylab("Percentage")
+e<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$OnlineSecurity)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Online Security")+ylab("Percentage")
+f<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$OnlineBackup)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Online Backup")+ylab("Percentage")
+g<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$DeviceProtection)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Device Protection")+ylab("Percentage")
+h<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$TechSupport)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Tech Support")+ylab("Percentage")
+i<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$StreamingTV)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Streaming TV")+ylab("Percentage")
+j<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$StreamingMovies)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Streaming Movies")+ylab("Percentage")
+k<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$Contract)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Contract")+ylab("Percentage")
+l<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$PaperlessBilling)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Paperless Billing")+ylab("Percentage")
+m<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$SeniorCitizen)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Senior Citizen")+ylab("Percentage")
+o<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Both$Churn,Both$PaymentMethod)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Payment Method")+ylab("Percentage")
+n<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+cowplot::plot_grid(a, b,c,d,e,f,g,h,i,j,k,l,m,n,o,ncol = 3)
+```
+```{r}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 8,fig.height = 5.5)
+```
+
+```{r}
+a<-Both %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=tenure,fill="coral"))+
+  guides(fill=FALSE)
+
+b<-Both %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=MonthlyCharges,fill="coral"))+
+  guides(fill=FALSE)
+
+c<-Both %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=TotalCharges,fill="coral"))+
+  guides(fill=FALSE)
+
+cowplot::plot_grid(a, b,c,ncol = 3)
+```
+
+```{r}
+numerics=Both[c('tenure','MonthlyCharges','TotalCharges')]
+correlations=cor(numerics)
+d<-corrplot(correlations,method = "number",type="upper")
+```
+
+## Separating Data sets into training and test - BOTH
+```{r}
+set.seed(1024)
+trainIndex <- sample(1:nrow(Both), size=round(0.75*nrow(Both)), replace=FALSE)
+train <- Both[trainIndex,]
+test  <- Both[-trainIndex,]
+dim(train); dim(test)
+summary(train)
+```
+## Creating the model - BOTH
+```{r}
+reg1  <- glm(Churn ~ SeniorCitizen+ Partner+ Dependents + MultipleLines + InternetService + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + Contract + PaperlessBilling+PaymentMethod+tenure,family=binomial (link="logit"),data=train)
+summary(reg1)
+```
+
+```{r}
+vif(reg1)
+dwtest(reg1)
+```
+
+## Calculating Accuracy, Precision, Recall and F-1 Score
+```{r}
+test_x <- test[ , c(1:19)]
+predlogit <-predict(reg1, newdata=test_x, type="response")
+predlogit <- ifelse(predlogit>0.4, 1, 0)
+
+ConfusionMatrix<-table(test$Churn, predlogit)                         # Confusion matrix
+ClassificationError <- mean(predlogit != test$Churn) # Classification error
+
+pr <- prediction(predlogit, test$Churn)
+prf <- performance(pr, measure="tpr", x.measure="fpr")
+plot(prf)                                                 # ROC plot: TPR vs FPR
+
+auc <- performance(pr, measure="auc")
+auc <- auc@y.values[[1]]
+
+TP = ConfusionMatrix[2,2]
+TN = ConfusionMatrix[1,1]
+FN = ConfusionMatrix[1,2]
+FP = ConfusionMatrix[2,1]
+
+precision<- round(TP / (TP + FP), 2)
+recall<- round(TP / (TP + FN), 2)
+f1_score<- round((2 * precision * recall) / (precision + recall), 2)
+
+print(paste("Accuracy = ", 1-ClassificationError))
+print(paste("AUC = ", auc))
+print(paste("Precision = ", precision))
+print(paste("Recall = ", recall))
+print(paste("F-1 Score = ", f1_score))
 
 ```
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 12,fig.height = 15)
+```
+
+## Visualizing predictors with churn possibility - Telephone only
+```{r}
+df2<-table(Telephone$Churn,Telephone$gender)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Gender")+ylab("Percentage")
+a<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Telephone$Churn,Telephone$Partner)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Partner")+ylab("Percentage")
+b<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Telephone$Churn,Telephone$Dependents)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Dependents")+ylab("Percentage")
+c<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Telephone$Churn,Telephone$MultipleLines)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Multiple Lines")+ylab("Percentage")
+d<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Telephone$Churn,Telephone$SeniorCitizen)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Senior Citizen")+ylab("Percentage")
+e<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+
+df2<-table(Telephone$Churn,Telephone$Contract)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Contract")+ylab("Percentage")
+f<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Telephone$Churn,Telephone$PaperlessBilling)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Paperless Billing")+ylab("Percentage")
+g<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Telephone$Churn,Telephone$PaymentMethod)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Payment Method")+ylab("Percentage")
+h<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+cowplot::plot_grid(a, b,c,d,e,f,g,h,ncol = 3)
+```
+
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 8,fig.height = 5.5)
+```
+
+```{r}
+a<-Telephone %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=tenure,fill="coral"))+
+  guides(fill=FALSE)
+
+b<-Telephone %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=MonthlyCharges,fill="coral"))+
+  guides(fill=FALSE)
+
+c<-Telephone %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=TotalCharges,fill="coral"))+
+  guides(fill=FALSE)
+
+cowplot::plot_grid(a, b,c,ncol = 3)      
+```
+
+```{r}
+numerics=Telephone[c('tenure','MonthlyCharges','TotalCharges')]
+correlations=cor(numerics)
+corrplot(correlations,method = "number",type="upper")
+```
+
+
+## Separating Data sets into training and test - Telephone only
+```{r}
+set.seed(1024)
+trainIndex <- sample(1:nrow(Telephone), size=round(0.75*nrow(Telephone)), replace=FALSE)
+train <- Telephone[trainIndex,]
+test  <- Telephone[-trainIndex,]
+dim(train); dim(test)
+summary(train)
+```
+
+## Creating the model - Telephone only
+```{r}
+reg2  <- glm(Churn ~ Partner+ Dependents + MultipleLines + Contract + PaperlessBilling+PaymentMethod+tenure,family=binomial (link="logit"),data=train)
+summary(reg2)
+```
+
+```{r}
+vif(reg2)
+dwtest(reg2)
+```
+
+## Calculating Accuracy, Precision, Recall and F-1 Score
+```{r}
+test_x <- test[ , c(1:12)]
+predlogit <-predict(reg2, newdata=test_x, type="response")
+predlogit <- ifelse(predlogit>0.19, 1, 0)
+
+ConfusionMatrix<-table(test$Churn, predlogit) # Confusion matrix
+ConfusionMatrix
+ClassificationError <- mean(predlogit != test$Churn) # Classification error
+
+pr <- prediction(predlogit, test$Churn)
+prf <- performance(pr, measure="tpr", x.measure="fpr")
+plot(prf)                                                 # ROC plot: TPR vs FPR
+
+auc <- performance(pr, measure="auc")
+auc <- auc@y.values[[1]]
+
+TP = ConfusionMatrix[2,2]
+TN = ConfusionMatrix[1,1]
+FN = ConfusionMatrix[1,2]
+FP = ConfusionMatrix[2,1]
+
+precision<- round(TP / (TP + FP), 2)
+recall<- round(TP / (TP + FN), 2)
+f1_score<- round((2 * precision * recall) / (precision + recall), 2)
+
+print(paste("Accuracy = ", 1-ClassificationError))
+print(paste("AUC = ", auc))
+print(paste("Precision = ", precision))
+print(paste("Recall = ", recall))
+print(paste("F-1 Score = ", f1_score))
+
+```
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 12,fig.height = 15)
+```
+
+## Visualizing predictors with churn possibility - Internet only
+```{r}
+df2<-table(Internet$Churn,Internet$gender)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Gender")+ylab("Percentage")
+a<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$Partner)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Partner")+ylab("Percentage")
+b<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$Dependents)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Dependents")+ylab("Percentage")
+c<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$SeniorCitizen)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Senior Citizen")+ylab("Percentage")
+d<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+
+
+df2<-table(Internet$Churn,Internet$OnlineSecurity)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Online Security")+ylab("Percentage")
+f<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$OnlineBackup)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Online Backup")+ylab("Percentage")
+g<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$DeviceProtection)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Device Protection")+ylab("Percentage")
+h<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$TechSupport)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Tech Support")+ylab("Percentage")
+i<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$StreamingTV)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Streaming TV")+ylab("Percentage")
+j<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$StreamingMovies)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Streaming Movies")+ylab("Percentage")
+k<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$Contract)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Contract")+ylab("Percentage")
+l<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$PaperlessBilling)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Paperless Billing")+ylab("Percentage")
+m<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+df2<-table(Internet$Churn,Internet$PaymentMethod)
+df2<-round(100*prop.table(df2),digits=0)
+df2<-as.data.frame(df2)
+
+p<-ggplot(df2, aes(Var2, Freq)) + geom_bar(aes(fill = Var1), stat = "identity", position = "dodge")+xlab("Payment Method")+ylab("Percentage")
+e<-p+scale_fill_discrete(name = "Churn", labels = c("No", "Yes"))
+
+cowplot::plot_grid(a, b,c,d,e,f,g,h,i,j,k,l,m,ncol = 3)
+```
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 8,fig.height = 5.5)
+```
+
+```{r}
+a<-Internet %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=tenure,fill="coral"))+
+  guides(fill=FALSE)
+
+b<-Internet %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=MonthlyCharges,fill="coral"))+
+  guides(fill=FALSE)
+
+c<-Internet %>%
+  group_by(Churn) %>%
+  ggplot()+
+  geom_boxplot(aes(x=Churn,y=TotalCharges,fill="coral"))+
+  guides(fill=FALSE)
+
+cowplot::plot_grid(a, b,c,ncol = 3)
+```
+
+```{r}
+numerics=Internet[c('tenure','MonthlyCharges','TotalCharges')]
+correlations=cor(numerics)
+corrplot(correlations,method = "number",type="upper")
+```
+
+## Separating Data sets into training and test - Telephone only
+```{r}
+set.seed(1024)
+trainIndex <- sample(1:nrow(Internet), size=round(0.75*nrow(Internet)), replace=FALSE)
+train <- Internet[trainIndex,]
+test  <- Internet[-trainIndex,]
+dim(train); dim(test)
+summary(train)
+```
+## Creating the model - Telephone only
+```{r}
+reg3<- glm(Churn ~ Partner+ Dependents + SeniorCitizen + PaymentMethod + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + Contract + PaperlessBilling+tenure+MonthlyCharges,family=binomial (link="logit"),data=train)
+summary(reg3)
+```
+
+```{r}
+vif(reg3)
+dwtest(reg3)
+```
+
+
+```{r}
+test_x <- test[ , c(1:17)]
+predlogit <-predict(reg3, newdata=test_x, type="response")
+predlogit <- ifelse(predlogit>0.35, 1, 0)
+
+ConfusionMatrix<-table(test$Churn, predlogit) # Confusion matrix
+ConfusionMatrix
+ClassificationError <- mean(predlogit != test$Churn) # Classification error
+
+pr <- prediction(predlogit, test$Churn)
+prf <- performance(pr, measure="tpr", x.measure="fpr")
+plot(prf)                                                 # ROC plot: TPR vs FPR
+
+auc <- performance(pr, measure="auc")
+auc <- auc@y.values[[1]]
+
+TP = ConfusionMatrix[2,2]
+TN = ConfusionMatrix[1,1]
+FN = ConfusionMatrix[1,2]
+FP = ConfusionMatrix[2,1]
+
+precision<- round(TP / (TP + FP), 2)
+recall<- round(TP / (TP + FN), 2)
+f1_score<- round((2 * precision * recall) / (precision + recall), 2)
+
+print(paste("Accuracy = ", 1-ClassificationError))
+print(paste("AUC = ", auc))
+print(paste("Precision = ", precision))
+print(paste("Recall = ", recall))
+print(paste("F-1 Score = ", f1_score))
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
 
 ```{r}
 
@@ -164,10 +757,3 @@ colSums(is.na(Internet))
 
 ```
 
-```{r}
-
-```
-
-```{r}
-
-```
