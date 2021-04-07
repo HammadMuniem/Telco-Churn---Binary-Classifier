@@ -313,7 +313,7 @@ dwtest(reg1)
 ```{r}
 test_x <- test[ , c(1:19)]
 predlogit <-predict(reg1, newdata=test_x, type="response")
-predlogit <- ifelse(predlogit>0.4, 1, 0)
+predlogit <- ifelse(predlogit>0.24, 1, 0)
 
 ConfusionMatrix<-table(test$Churn, predlogit)                         # Confusion matrix
 ClassificationError <- mean(predlogit != test$Churn) # Classification error
@@ -327,13 +327,13 @@ auc <- auc@y.values[[1]]
 
 TP = ConfusionMatrix[2,2]
 TN = ConfusionMatrix[1,1]
-FN = ConfusionMatrix[1,2]
-FP = ConfusionMatrix[2,1]
+FP = ConfusionMatrix[1,2]
+FN = ConfusionMatrix[2,1]
 
 precision<- round(TP / (TP + FP), 2)
 recall<- round(TP / (TP + FN), 2)
 f1_score<- round((2 * precision * recall) / (precision + recall), 2)
-
+ConfusionMatrix
 print(paste("Accuracy = ", 1-ClassificationError))
 print(paste("AUC = ", auc))
 print(paste("Precision = ", precision))
@@ -488,8 +488,8 @@ auc <- auc@y.values[[1]]
 
 TP = ConfusionMatrix[2,2]
 TN = ConfusionMatrix[1,1]
-FN = ConfusionMatrix[1,2]
-FP = ConfusionMatrix[2,1]
+FP = ConfusionMatrix[1,2]
+FN = ConfusionMatrix[2,1]
 
 precision<- round(TP / (TP + FP), 2)
 recall<- round(TP / (TP + FN), 2)
@@ -649,7 +649,7 @@ correlations=cor(numerics)
 corrplot(correlations,method = "number",type="upper")
 ```
 
-## Separating Data sets into training and test - Telephone only
+## Separating Data sets into training and test - Internet only
 ```{r}
 set.seed(1024)
 trainIndex <- sample(1:nrow(Internet), size=round(0.75*nrow(Internet)), replace=FALSE)
@@ -658,7 +658,7 @@ test  <- Internet[-trainIndex,]
 dim(train); dim(test)
 summary(train)
 ```
-## Creating the model - Telephone only
+## Creating the model - Internet only
 ```{r}
 reg3<- glm(Churn ~ Partner+ Dependents + SeniorCitizen + PaymentMethod + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + Contract + PaperlessBilling+tenure+MonthlyCharges,family=binomial (link="logit"),data=train)
 summary(reg3)
@@ -688,8 +688,8 @@ auc <- auc@y.values[[1]]
 
 TP = ConfusionMatrix[2,2]
 TN = ConfusionMatrix[1,1]
-FN = ConfusionMatrix[1,2]
-FP = ConfusionMatrix[2,1]
+FP = ConfusionMatrix[1,2]
+FN = ConfusionMatrix[2,1]
 
 precision<- round(TP / (TP + FP), 2)
 recall<- round(TP / (TP + FN), 2)
@@ -708,7 +708,7 @@ stargazer(reg1,reg2,reg3,type="text",align = TRUE,single.row=TRUE,digits=2,out =
 ```
 
 ```{r}
-
+exp(0.19)
 ```
 
 ```{r}

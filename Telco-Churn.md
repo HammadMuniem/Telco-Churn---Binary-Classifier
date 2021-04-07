@@ -594,7 +594,7 @@ dwtest(reg1)
 ``` r
 test_x <- test[ , c(1:19)]
 predlogit <-predict(reg1, newdata=test_x, type="response")
-predlogit <- ifelse(predlogit>0.4, 1, 0)
+predlogit <- ifelse(predlogit>0.24, 1, 0)
 
 ConfusionMatrix<-table(test$Churn, predlogit)                         # Confusion matrix
 ClassificationError <- mean(predlogit != test$Churn) # Classification error
@@ -612,41 +612,49 @@ auc <- auc@y.values[[1]]
 
 TP = ConfusionMatrix[2,2]
 TN = ConfusionMatrix[1,1]
-FN = ConfusionMatrix[1,2]
-FP = ConfusionMatrix[2,1]
+FP = ConfusionMatrix[1,2]
+FN = ConfusionMatrix[2,1]
 
 precision<- round(TP / (TP + FP), 2)
 recall<- round(TP / (TP + FN), 2)
 f1_score<- round((2 * precision * recall) / (precision + recall), 2)
+ConfusionMatrix
+```
 
+    ##    predlogit
+    ##       0   1
+    ##   0 518 307
+    ##   1  47 336
+
+``` r
 print(paste("Accuracy = ", 1-ClassificationError))
 ```
 
-    ## [1] "Accuracy =  0.762417218543046"
+    ## [1] "Accuracy =  0.706953642384106"
 
 ``` r
 print(paste("AUC = ", auc))
 ```
 
-    ## [1] "AUC =  0.733037423846823"
+    ## [1] "AUC =  0.752581691589525"
 
 ``` r
 print(paste("Precision = ", precision))
 ```
 
-    ## [1] "Precision =  0.65"
+    ## [1] "Precision =  0.52"
 
 ``` r
 print(paste("Recall = ", recall))
 ```
 
-    ## [1] "Recall =  0.62"
+    ## [1] "Recall =  0.88"
 
 ``` r
 print(paste("F-1 Score = ", f1_score))
 ```
 
-    ## [1] "F-1 Score =  0.63"
+    ## [1] "F-1 Score =  0.65"
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE,fig.width = 12,fig.height = 15)
@@ -803,35 +811,37 @@ summary(train)
 ## Creating the model - Telephone only
 
 ``` r
-reg2  <- glm(Churn ~ Partner+ Dependents + MultipleLines + Contract + PaperlessBilling+PaymentMethod+tenure,family=binomial (link="logit"),data=train)
+reg2  <- glm(Churn ~SeniorCitizen+ Partner+ Dependents + MultipleLines + Contract + PaperlessBilling+PaymentMethod+tenure,family=binomial (link="logit"),data=train)
 summary(reg2)
 ```
 
     ## 
     ## Call:
-    ## glm(formula = Churn ~ Partner + Dependents + MultipleLines + 
-    ##     Contract + PaperlessBilling + PaymentMethod + tenure, family = binomial(link = "logit"), 
-    ##     data = train)
+    ## glm(formula = Churn ~ SeniorCitizen + Partner + Dependents + 
+    ##     MultipleLines + Contract + PaperlessBilling + PaymentMethod + 
+    ##     tenure, family = binomial(link = "logit"), data = train)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -1.0234  -0.4118  -0.1893  -0.0924   3.3770  
+    ## -1.0090  -0.4135  -0.1899  -0.0911   3.3843  
     ## 
     ## Coefficients:
     ##                                      Estimate Std. Error z value Pr(>|z|)
-    ## (Intercept)                          -0.80891    0.34436  -2.349 0.018823
-    ## PartnerYes                           -0.13027    0.34487  -0.378 0.705618
-    ## DependentsYes                         0.04121    0.33547   0.123 0.902242
-    ## MultipleLinesYes                      0.36758    0.41357   0.889 0.374116
-    ## ContractOne year                     -1.16897    0.40117  -2.914 0.003570
-    ## ContractTwo year                     -1.60090    0.55861  -2.866 0.004159
-    ## PaperlessBillingYes                   0.32392    0.25683   1.261 0.207223
-    ## PaymentMethodCredit card (automatic) -0.99533    0.48868  -2.037 0.041674
-    ## PaymentMethodElectronic check        -0.20905    0.44136  -0.474 0.635743
-    ## PaymentMethodMailed check            -0.50120    0.33550  -1.494 0.135204
-    ## tenure                               -0.04725    0.01240  -3.811 0.000138
+    ## (Intercept)                          -0.82284    0.34494  -2.385 0.017057
+    ## SeniorCitizen1                        0.55690    0.69930   0.796 0.425819
+    ## PartnerYes                           -0.16141    0.34570  -0.467 0.640559
+    ## DependentsYes                         0.08423    0.33939   0.248 0.804001
+    ## MultipleLinesYes                      0.36268    0.41335   0.877 0.380254
+    ## ContractOne year                     -1.18072    0.40221  -2.936 0.003329
+    ## ContractTwo year                     -1.58992    0.55905  -2.844 0.004455
+    ## PaperlessBillingYes                   0.31834    0.25704   1.238 0.215539
+    ## PaymentMethodCredit card (automatic) -0.98528    0.48865  -2.016 0.043763
+    ## PaymentMethodElectronic check        -0.22034    0.44271  -0.498 0.618694
+    ## PaymentMethodMailed check            -0.49703    0.33543  -1.482 0.138403
+    ## tenure                               -0.04769    0.01245  -3.832 0.000127
     ##                                         
     ## (Intercept)                          *  
+    ## SeniorCitizen1                          
     ## PartnerYes                              
     ## DependentsYes                           
     ## MultipleLinesYes                        
@@ -848,8 +858,8 @@ summary(reg2)
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
     ##     Null deviance: 599.79  on 1139  degrees of freedom
-    ## Residual deviance: 474.31  on 1129  degrees of freedom
-    ## AIC: 496.31
+    ## Residual deviance: 473.73  on 1128  degrees of freedom
+    ## AIC: 497.73
     ## 
     ## Number of Fisher Scoring iterations: 7
 
@@ -858,13 +868,14 @@ vif(reg2)
 ```
 
     ##                      GVIF Df GVIF^(1/(2*Df))
-    ## Partner          1.663737  1        1.289859
-    ## Dependents       1.608124  1        1.268118
-    ## MultipleLines    1.125764  1        1.061020
-    ## Contract         1.546748  2        1.115205
-    ## PaperlessBilling 1.030580  1        1.015175
-    ## PaymentMethod    1.132914  3        1.021017
-    ## tenure           1.628559  1        1.276150
+    ## SeniorCitizen    1.053709  1        1.026503
+    ## Partner          1.669533  1        1.292104
+    ## Dependents       1.644518  1        1.282388
+    ## MultipleLines    1.127899  1        1.062026
+    ## Contract         1.556724  2        1.116999
+    ## PaperlessBilling 1.030882  1        1.015324
+    ## PaymentMethod    1.136184  3        1.021507
+    ## tenure           1.637428  1        1.279620
 
 ``` r
 dwtest(reg2)
@@ -874,7 +885,7 @@ dwtest(reg2)
     ##  Durbin-Watson test
     ## 
     ## data:  reg2
-    ## DW = 2.0107, p-value = 0.5714
+    ## DW = 2.0102, p-value = 0.5678
     ## alternative hypothesis: true autocorrelation is greater than 0
 
 ## Calculating Accuracy, Precision, Recall and F-1 Score
@@ -909,8 +920,8 @@ auc <- auc@y.values[[1]]
 
 TP = ConfusionMatrix[2,2]
 TN = ConfusionMatrix[1,1]
-FN = ConfusionMatrix[1,2]
-FP = ConfusionMatrix[2,1]
+FP = ConfusionMatrix[1,2]
+FN = ConfusionMatrix[2,1]
 
 precision<- round(TP / (TP + FP), 2)
 recall<- round(TP / (TP + FN), 2)
@@ -931,13 +942,13 @@ print(paste("AUC = ", auc))
 print(paste("Precision = ", precision))
 ```
 
-    ## [1] "Precision =  0.69"
+    ## [1] "Precision =  0.29"
 
 ``` r
 print(paste("Recall = ", recall))
 ```
 
-    ## [1] "Recall =  0.29"
+    ## [1] "Recall =  0.69"
 
 ``` r
 print(paste("F-1 Score = ", f1_score))
@@ -1098,7 +1109,7 @@ corrplot(correlations,method = "number",type="upper")
 
 ![](Telco-Churn_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
-## Separating Data sets into training and test - Telephone only
+## Separating Data sets into training and test - Internet only
 
 ``` r
 set.seed(1024)
@@ -1145,7 +1156,7 @@ summary(train)
     ##                                  3rd Qu.:50.59   3rd Qu.:2507.46          
     ##                                  Max.   :67.20   Max.   :4919.70
 
-## Creating the model - Telephone only
+## Creating the model - Internet only
 
 ``` r
 reg3<- glm(Churn ~ Partner+ Dependents + SeniorCitizen + PaymentMethod + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + Contract + PaperlessBilling+tenure+MonthlyCharges,family=binomial (link="logit"),data=train)
@@ -1268,8 +1279,8 @@ auc <- auc@y.values[[1]]
 
 TP = ConfusionMatrix[2,2]
 TN = ConfusionMatrix[1,1]
-FN = ConfusionMatrix[1,2]
-FP = ConfusionMatrix[2,1]
+FP = ConfusionMatrix[1,2]
+FN = ConfusionMatrix[2,1]
 
 precision<- round(TP / (TP + FP), 2)
 recall<- round(TP / (TP + FN), 2)
@@ -1290,16 +1301,58 @@ print(paste("AUC = ", auc))
 print(paste("Precision = ", precision))
 ```
 
-    ## [1] "Precision =  0.7"
+    ## [1] "Precision =  0.57"
 
 ``` r
 print(paste("Recall = ", recall))
 ```
 
-    ## [1] "Recall =  0.57"
+    ## [1] "Recall =  0.7"
 
 ``` r
 print(paste("F-1 Score = ", f1_score))
 ```
 
     ## [1] "F-1 Score =  0.63"
+
+``` r
+stargazer(reg1,reg2,reg3,type="text",align = TRUE,single.row=TRUE,digits=2,out = "regout.txt")
+```
+
+    ## 
+    ## =====================================================================================
+    ##                                                    Dependent variable:               
+    ##                                      ------------------------------------------------
+    ##                                                           Churn                      
+    ##                                            (1)              (2)             (3)      
+    ## -------------------------------------------------------------------------------------
+    ## SeniorCitizen1                         0.19* (0.10)     0.56 (0.70)     0.34 (0.33)  
+    ## PartnerYes                             -0.05 (0.10)    -0.16 (0.35)     0.36 (0.29)  
+    ## DependentsYes                          -0.05 (0.11)     0.08 (0.34)    -0.68* (0.35) 
+    ## MultipleLinesYes                      0.44*** (0.09)    0.36 (0.41)                  
+    ## InternetServiceFiber optic            0.92*** (0.11)                                 
+    ## OnlineSecurityYes                    -0.39*** (0.10)                   -0.60* (0.32) 
+    ## OnlineBackupYes                        -0.13 (0.09)                    -0.04 (0.28)  
+    ## DeviceProtectionYes                    0.07 (0.09)                      0.14 (0.32)  
+    ## TechSupportYes                        -0.22** (0.10)                  -0.78*** (0.30)
+    ## ContractOne year                     -0.38*** (0.14)  -1.18*** (0.40)  -0.68* (0.40) 
+    ## ContractTwo year                     -1.04*** (0.23)  -1.59*** (0.56)  -1.21* (0.68) 
+    ## PaperlessBillingYes                   0.40*** (0.10)    0.32 (0.26)    0.45* (0.27)  
+    ## PaymentMethodCredit card (automatic)   0.17 (0.14)    -0.99** (0.49)   -0.43 (0.48)  
+    ## PaymentMethodElectronic check         0.48*** (0.12)   -0.22 (0.44)     0.24 (0.39)  
+    ## PaymentMethodMailed check              0.14 (0.16)     -0.50 (0.34)    -0.09 (0.44)  
+    ## tenure                               -0.03*** (0.003) -0.05*** (0.01) -0.04*** (0.01)
+    ## MonthlyCharges                                                          0.01 (0.02)  
+    ## Constant                             -0.86*** (0.16)  -0.82** (0.34)   -0.40 (0.62)  
+    ## -------------------------------------------------------------------------------------
+    ## Observations                              3,624            1,140            510      
+    ## Log Likelihood                          -1,771.13         -236.86         -208.91    
+    ## Akaike Inf. Crit.                        3,576.26         497.73          449.81     
+    ## =====================================================================================
+    ## Note:                                                     *p<0.1; **p<0.05; ***p<0.01
+
+``` r
+exp(0.19)
+```
+
+    ## [1] 1.20925
